@@ -190,32 +190,38 @@ public final class Util {
 
   /** Returns a 32 character string containing an MD5 hash of {@code s}. */
   public static String md5Hex(String s) {
-    try {
-      MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-      byte[] md5bytes = messageDigest.digest(s.getBytes("UTF-8"));
-      return ByteString.of(md5bytes).hex();
-    } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-      throw new AssertionError(e);
-    }
+    return hash("MD5", s.getBytes(UTF_8)).hex();
   }
 
   /** Returns a Base 64-encoded string containing a SHA-1 hash of {@code s}. */
   public static String shaBase64(String s) {
-    try {
-      MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-      byte[] sha1Bytes = messageDigest.digest(s.getBytes("UTF-8"));
-      return ByteString.of(sha1Bytes).base64();
-    } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-      throw new AssertionError(e);
-    }
+    return hash("SHA-1", s.getBytes(UTF_8)).base64();
   }
 
   /** Returns a SHA-1 hash of {@code s}. */
   public static ByteString sha1(ByteString s) {
+    return hash("SHA-1", s.toByteArray());
+  }
+
+  /** Returns a SHA-256 hash of {@code s}. */
+  public static ByteString sha256(ByteString s) {
+    return hash("SHA-256", s.toByteArray());
+  }
+
+  /**
+   *  Returns a ByteString hash of {@code s} using the provided algorithm {@code algorithm}.
+   *
+   *  As per https://docs.oracle.com/javase/7/docs/api/java/security/MessageDigest.html
+   *  MD5, SHA-1, and SHA-256 are required to be provided by the Java platform.
+   *
+   *  Standard Algorithm names can be found at:
+   *  https://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#MessageDigest
+   */
+  private static ByteString hash(String algorithm, byte[] s) {
     try {
-      MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-      byte[] sha1Bytes = messageDigest.digest(s.toByteArray());
-      return ByteString.of(sha1Bytes);
+      MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
+      byte[] hashBytes = messageDigest.digest(s);
+      return ByteString.of(hashBytes);
     } catch (NoSuchAlgorithmException e) {
       throw new AssertionError(e);
     }
